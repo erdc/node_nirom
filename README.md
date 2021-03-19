@@ -1,13 +1,19 @@
 # NODE for NIROM
 
-Using a Tensorflow-based implementation of Neural ODEs to develop non-intrusive reduced order models for CFD problems.
+Using a Tensorflow-based implementation of Neural ODEs (NODE) to develop non-intrusive reduced order models for CFD problems.
+Numerical comparisons are made with non-intrusive reduced order models (NIROM) that use Dynamic Mode Decomposition (DMD) 
+as well as a combination of linear dimension reduction using Proper Orthogonal Decomposition (POD) and latent-space 
+evolution using Radial Basis Function (RBF) interpolation. 
+
 
 ## Description
 
-An in-depth paragraph about your project and overview of use (To Be Updated).
 * High-fidelity data files are available at [RDEDrive](https://rdedrive.erdc.dren.mil/url/rngn5jdnhxaizsry) (VPN required)
 
+
+
 ## Getting Started
+
 
 ### Dependencies
 
@@ -15,25 +21,12 @@ An in-depth paragraph about your project and overview of use (To Be Updated).
 * Tensorflow 2.x
 * tfdiffeq
 
-### Installing
-
-* How/where to download your program (TBU)
-* Any modifications needed to be made to files/folders (TBU)
 
 ### Executing program
 
-* How to run the program (TBU)
-* Step-by-step bullets (TBU)
-```
-code blocks for commands
-```
+* NODE scripts, available inside the notebooks directory, can be invoked with various user-specified configuration options to test different NN models 
+* DMD and PODRBF notebooks are also available inside the notebooks directory.
 
-## Help
-
-Any advise for common problems or issues (TBU).
-```
-command to run if program contains helper info (TBU)
-```
 
 ## Authors
 
@@ -42,18 +35,9 @@ command to run if program contains helper info (TBU)
 * **Peter Rivera-Casillas** - *Peter.G.Rivera-Casillas@erdc.dren.mil* - ERDC-CHL 
 
 
-## Version History
-
-* 0.2
-    * Various bug fixes and optimizations
-    * See [commit change]() or See [release history]()
-* 0.1
-    * Initial Release
-
-
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
 
 ## Acknowledgments
