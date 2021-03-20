@@ -39,9 +39,9 @@ np.random.seed(0)
 basedir   = os.getcwd()
 podsrcdir = os.path.join(basedir,'../src/podrbf/')
 workdir   = os.path.join(basedir,'../notebooks/')
-datadir   = os.path.join(base_dir,'../data/')
-figdir    = os.path.join(base_dir,'../figures')
-nodedir   = os.path.join(base_dir,'../best_models/CYLINDER/')
+datadir   = os.path.join(basedir,'../data/')
+figdir    = os.path.join(basedir,'../figures')
+nodedir   = os.path.join(basedir,'../best_models/CYLINDER/')
 
 modeldir = basedir
 savedir = nodedir
@@ -419,6 +419,8 @@ elif adjoint == False:
     int_ode = odeint
 
 if purpose == 'train':
+    if not os.path.exists(savedir+'/current/model_weights_cyl/'):
+        os.makedirs(savedir+'/current/model_weights_cyl/')
 
     if minibatch == True:
         dataset = tf.data.Dataset.from_tensor_slices((true_state_tensor, times_tensor))
@@ -493,6 +495,8 @@ elif purpose == 'retrain':
     initial_learning_rate = saved_lr['lr'][-1]
     ep = saved_lr['ep'][-1]
     print("Initial lr = {0}".format(initial_learning_rate))
+    if not os.path.exists(savedir+'/current/model_weights_cyl/'):
+        os.makedirs(savedir+'/current/model_weights_cyl/')
 
     if learning_rate_decay == True:
         learn_rate = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate, decay_steps,

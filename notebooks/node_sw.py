@@ -39,9 +39,9 @@ np.random.seed(0)
 basedir   = os.getcwd()
 podsrcdir = os.path.join(basedir,'../src/podrbf/')
 workdir   = os.path.join(basedir,'../notebooks/')
-datadir   = os.path.join(base_dir,'../data/')
-figdir    = os.path.join(base_dir,'../figures')
-nodedir   = os.path.join(base_dir,'../best_models/')
+datadir   = os.path.join(basedir,'../data/')
+figdir    = os.path.join(basedir,'../figures')
+nodedir   = os.path.join(basedir,'../best_models/')
 
 
 # Options
@@ -66,15 +66,13 @@ parser.add_argument('-nl', default=1, help='Number of layers, only 1-3')
 parser.add_argument('-nn', default=256, help='Number of neurons per layer')
 parser.add_argument('-scale_time', action='store_true', help='Scale time or not (default=False)')
 parser.add_argument('-scale_states', action='store_true', help='Scale states or not (default=False)')
-parser.add_argument('-sw_model', default='SD', action='store', type=str, help='SW model')
+parser.add_argument('-sw_model', default='SD', action='store', type=str, help='SW model: Choose between "RED" and "SD" (default)')
 
 args = parser.parse_args()
 
-print(args)
-
-device = 'gpu:0' # select gpu:# or cpu:#
+device = 'cpu:0' # select gpu:# or cpu:#
 purpose= args.mode #Write 'train' to train a new model, 'retrain' to retrain a model and 'eval' to load a pre-trained model for evaluation (make sure you have the correct set of hyperparameters)
-pre_trained = nodedir+args.sw_model+'/model_weights/ckpt' #If 'Evaluate' specify path for pretrained model
+pre_trained = nodedir+args.sw_model+'/model_weights/' #If 'Evaluate' specify path for pretrained model
 stack_order = args.stk #'S_dep,S_vx,S_vy'
 scale_time = args.scale_time #Scale time or not (Normalize)
 scale_states = args.scale_states #Scale states or not (MinMax -1,1)
@@ -97,7 +95,7 @@ model_sw = args.sw_model # SW model to be loaded
 
 nodedir  = nodedir+model_sw
 modeldir = basedir
-savedir = nodedir
+savedir  = nodedir
 os.chdir(workdir)
 
 print("\n***** Runtime parameters: ******\n")
@@ -112,8 +110,8 @@ if model_sw =='SD':
     data = np.load(datadir + 'san_diego_tide_snapshots_T4.32e5_nn6311_dt25.npz')
     mesh = np.load(datadir + 'san_diego_mesh.npz')
 elif model_sw == 'RED':
-    data = np.load(datadir + 'red_river_inset_snapshots_T7.0e4_nn12291_dt10.npz'))
-    mesh = np.load(datadir + 'red_river_mesh.npz'))
+    data = np.load(datadir + 'red_river_inset_snapshots_T7.0e4_nn12291_dt10.npz')
+    mesh = np.load(datadir + 'red_river_mesh.npz')
 
 
 ## Prepare training snapshots
@@ -279,7 +277,7 @@ npod_total = 0
 for key in soln_names:
     npod_total+=nw[key]
 
-true_state_array = np.zeros((times_train.size,npod_total)); print(true_state_array.shape)
+true_state_array = np.zeros((times_train.size,npod_total));
 
 ## Save POD coefficients of snapshots for prediction comparison
 tsteps = np.shape(true_state_array)[0]
@@ -380,29 +378,29 @@ class NN(tf.keras.Model):
         self.eqn = tf.keras.Sequential([tf.keras.layers.Dense(N_neurons, activation=act_f,
                                        kernel_initializer = tf.keras.initializers.glorot_uniform(),
                                        bias_initializer='zeros',
-                                       input_shape=(264+aug_dims,)),
-                 tf.keras.layers.Dense(264+aug_dims)])
+                                       input_shape=(state_len+aug_dims,)),
+                 tf.keras.layers.Dense(state_len+aug_dims)])
     elif N_layers == 2:
         self.eqn = tf.keras.Sequential([tf.keras.layers.Dense(N_neurons, activation=act_f,
                                        kernel_initializer = tf.keras.initializers.glorot_uniform(),
                                        bias_initializer='zeros',
-                                       input_shape=(264+aug_dims,)),
-                                       tf.keras.layers.Dense(N_neurons, activation=act_f,
+                                       input_shape=(state_len+aug_dims,)),
+                                       tf.keras.layers.Dense(N_neurons, activation='linear',
                                        kernel_initializer = tf.keras.initializers.glorot_uniform(),
                                        bias_initializer='zeros'),
-                 tf.keras.layers.Dense(264+aug_dims)])
+                 tf.keras.layers.Dense(state_len+aug_dims)])
     elif N_layers == 3:
         self.eqn = tf.keras.Sequential([tf.keras.layers.Dense(N_neurons, activation=act_f,
                                        kernel_initializer = tf.keras.initializers.glorot_uniform(),
                                        bias_initializer='zeros',
-                                       input_shape=(264+aug_dims,)),
+                                       input_shape=(state_len+aug_dims,)),
                                        tf.keras.layers.Dense(N_neurons, activation=act_f,
                                        kernel_initializer = tf.keras.initializers.glorot_uniform(),
                                        bias_initializer='zeros'),
                                        tf.keras.layers.Dense(N_neurons, activation='linear',
                                        kernel_initializer = tf.keras.initializers.glorot_uniform(),
                                        bias_initializer='zeros'),
-                 tf.keras.layers.Dense(264+aug_dims)])
+                 tf.keras.layers.Dense(state_len+aug_dims)])
 
   @tf.function
   def call(self, t, y):
@@ -425,7 +423,8 @@ elif adjoint == False:
     int_ode = odeint
 
 if purpose == 'train':
-
+    if not os.path.exists(savedir+'/current/model_weights/'):
+        os.makedirs(savedir+'/current/model_weights/')
     if minibatch == True:
 
         # Prepare the training dataset.
@@ -437,22 +436,16 @@ if purpose == 'train':
 
             for epoch in range(epochs):
                 datagen = iter(dataset)
-
                 avg_loss = tf.keras.metrics.Mean()
 
                 for batch, (true_state_trainer, times_trainer) in enumerate(datagen):
-
                     with tf.GradientTape() as tape:
-
                         preds = int_ode(model, tf.expand_dims(init_state, axis=0), times_trainer, method=solver)
-
                         loss = tf.math.reduce_mean(tf.math.square(true_state_trainer - tf.squeeze(preds)))
 
                     grads = tape.gradient(loss, model.trainable_variables)
                     optimizer.apply_gradients(zip(grads, model.trainable_variables))
-
                     avg_loss(loss)
-
 
                 train_loss_results.append(avg_loss.result().numpy())
                 print("Epoch %d: Loss = %0.6f" % (epoch + 1, avg_loss.result().numpy()))
@@ -464,20 +457,15 @@ if purpose == 'train':
             model = NN()
 
             for epoch in range(epochs):
-                print(f"Epoch {epoch + 1}")
-
                 with tf.GradientTape() as tape:
-
                     preds = int_ode(model, tf.expand_dims(init_state, axis=0), times_tensor, method=solver)
-
                     loss = tf.math.reduce_mean(tf.math.square(true_state_tensor - tf.squeeze(preds)))
-
 
                 grads = tape.gradient(loss, model.trainable_variables)
                 optimizer.apply_gradients(zip(grads, model.trainable_variables))
 
                 train_loss_results.append(loss.numpy())
-                print("Loss :", loss.numpy())
+                print("Epoch {0}: Loss = {1:0.6f}, LR = {2:0.6f}".format(epoch+1, loss.numpy(), learn_rate(optimizer.iterations).numpy()))
                 print()
 
 
@@ -500,8 +488,32 @@ if purpose == 'train':
     end_time = time.time()
     print("****Total training time = {0}****\n".format(end_time - start_time))
     model.save_weights(savedir+'/current/model_weights/ckpt', save_format='tf')
+    if learning_rate_decay:
+        train_lr.append(learn_rate(optimizer.iterations).numpy())
+    else:
+        train_lr.append(learn_rate)
+    saved_ep.append(epoch+1)
+    np.savez_compressed(savedir+'current/model_weights/train_lr', lr=train_lr, ep=saved_ep)
 
 elif purpose == 'retrain':
+    saved_lr = np.load(pre_trained+'train_lr.npz')
+    initial_learning_rate = saved_lr['lr'][-1]
+    ep = saved_lr['ep'][-1]
+    print("Initial lr = {0}".format(initial_learning_rate))
+    if not os.path.exists(savedir+'/current/model_weights/'):
+        os.makedirs(savedir+'/current/model_weights/')
+        
+    if learning_rate_decay == True:
+        learn_rate = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate, decay_steps,
+                                                    decay_rate, staircase=staircase_opt)
+    elif learning_rate_decay == False:
+        learn_rate = initial_learning_rate
+
+    if optimizer == 'Adam':
+        optimizer = tf.keras.optimizers.Adam(learning_rate = learn_rate)
+    elif optimizer == 'RMSprop':
+        optimizer = tf.keras.optimizers.RMSprop(learning_rate = learn_rate, momentum = 0.9)
+
 
     if minibatch == True:
 
@@ -510,52 +522,42 @@ elif purpose == 'retrain':
 
         with tf.device(device):
             model = NN()
-            model.load_weights(pre_trained)
+            model.load_weights(pre_trained+'ckpt')
 
             for epoch in range(epochs):
                 datagen = iter(dataset)
-
                 avg_loss = tf.keras.metrics.Mean()
 
                 for batch, (true_state_trainer, times_trainer) in enumerate(datagen):
-
                     with tf.GradientTape() as tape:
-
                         preds = int_ode(model, tf.expand_dims(init_state, axis=0), times_trainer, method=solver)
-
                         loss = tf.math.reduce_mean(tf.math.square(true_state_trainer - tf.squeeze(preds)))
 
                     grads = tape.gradient(loss, model.trainable_variables)
                     optimizer.apply_gradients(zip(grads, model.trainable_variables))
-
                     avg_loss(loss)
 
-
                 train_loss_results.append(avg_loss.result().numpy())
-                print("Epoch %d: Loss = %0.6f" % (epoch + 1, avg_loss.result().numpy()))
+                print("Epoch %d: Loss = %0.6f, LR = %0.6f" %(ep+epoch + 1, avg_loss.result().numpy(), learn_rate(optimizer.iterations).numpy()))
                 print()
 
     elif minibatch == False:
 
         with tf.device(device):
             model = NN()
-            model.load_weights(pre_trained)
+            model.load_weights(pre_trained+'ckpt')
 
             for epoch in range(epochs):
-                print(f"Epoch {epoch + 1}")
 
                 with tf.GradientTape() as tape:
-
                     preds = int_ode(model, tf.expand_dims(init_state, axis=0), times_tensor, method=solver)
-
                     loss = tf.math.reduce_mean(tf.math.square(true_state_tensor - tf.squeeze(preds)))
-
 
                 grads = tape.gradient(loss, model.trainable_variables)
                 optimizer.apply_gradients(zip(grads, model.trainable_variables))
 
                 train_loss_results.append(loss.numpy())
-                print("Loss :", loss.numpy())
+                print("Epoch %d: Loss = %0.6f, LR = %0.6f" %(ep+epoch+1, loss.numpy(), learn_rate(optimizer.iterations).numpy()))
                 print()
 
 
@@ -578,11 +580,17 @@ elif purpose == 'retrain':
     end_time = time.time()
     print("****Total training time = {0}****\n".format((end_time - start_time)/3600))
     model.save_weights(savedir+'/current/model_weights/ckpt', save_format='tf')
+    if learning_rate_decay:
+        train_lr.append(learn_rate(optimizer.iterations).numpy())
+    else:
+        train_lr.append(learn_rate)
+    saved_ep.append(epoch+ep+1)
+    np.savez_compressed(savedir+'current/model_weights/train_lr', lr=train_lr, ep=saved_ep)
 
 elif purpose == 'eval':
 
     model = NN()
-    model.load_weights(pre_trained)
+    model.load_weights(pre_trained+'ckpt')
 
 
 

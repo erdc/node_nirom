@@ -8,8 +8,7 @@ evolution using Radial Basis Function (RBF) interpolation.
 
 ## Description
 
-* High-fidelity data files are available at [RDEDrive](https://rdedrive.erdc.dren.mil/url/rngn5jdnhxaizsry) (VPN required)
-
+* High-fidelity snapshots data files and trained model files are available at [RDEDrive](https://rdedrive.erdc.dren.mil/url/rngn5jdnhxaizsry) (VPN required)
 
 
 ## Getting Started
@@ -18,7 +17,7 @@ evolution using Radial Basis Function (RBF) interpolation.
 ### Dependencies
 
 * Python 3.x
-* Tensorflow 2.x
+* Tensorflow 2.x, 1.15.x
 * tfdiffeq
 
 
@@ -38,6 +37,21 @@ evolution using Radial Basis Function (RBF) interpolation.
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+
+
+## Reference
+
+If you found this library useful in your research, please consider citing
+```
+@inproceedings{dutta2021aaai,
+title={Neural Ordinary Differential Equations for Data-Driven Reduced Order Modeling of Environmental Hydrodynamics},
+author={Dutta, Sourav and Rivera-Casillas, Peter and Farthing, Matthew W.},
+booktitle={Proceedings of the AAAI 2021 Spring Symposium on Combining Artificial Intelligence and Machine Learning with Physical Sciences},
+year={2021},
+publisher={CEUR-WS},
+address={Stanford, CA, USA, March 22nd to 24th, 2021},
+}
+```
 
 
 ## Acknowledgments
