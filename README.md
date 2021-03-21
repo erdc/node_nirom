@@ -6,9 +6,9 @@ as well as a combination of linear dimension reduction using Proper Orthogonal D
 evolution using Radial Basis Function (RBF) interpolation. 
 
 For details please refer to
-```
+
 S. Dutta, P. Rivera-casillas, and M. W. Farthing, “Neural Ordinary Differential Equations for Data-Driven Reduced Order Modeling of Environmental Hydrodynamics,” in Proceedings of the AAAI 2021 Spring Symposium on Combining Artificial Intelligence and Machine Learning with Physical Sciences, 2021. [Link](https://sites.google.com/view/aaai-mlps/proceedings?authuser=0)
-```
+
 
 
 ## Getting Started
