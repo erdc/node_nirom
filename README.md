@@ -8,7 +8,7 @@ evolution using Radial Basis Function (RBF) interpolation.
 
 ## Description
 
-* High-fidelity snapshots data files and trained model files are available at [RDEDrive](https://rdedrive.erdc.dren.mil/url/rngn5jdnhxaizsry) (VPN required)
+* High-fidelity snapshots data files and trained model files are available at [RDEDrive](https://rdedrivepub.erdc.dren.mil/url/7exgxudgfjgiafnp) (Password: 23bnnyfn)
 
 
 ## Getting Started
@@ -47,6 +47,7 @@ If you found this library useful in your research, please consider citing
 title={Neural Ordinary Differential Equations for Data-Driven Reduced Order Modeling of Environmental Hydrodynamics},
 author={Dutta, Sourav and Rivera-Casillas, Peter and Farthing, Matthew W.},
 booktitle={Proceedings of the AAAI 2021 Spring Symposium on Combining Artificial Intelligence and Machine Learning with Physical Sciences},
+url={https://sites.google.com/view/aaai-mlps/proceedings?authuser=0},
 year={2021},
 publisher={CEUR-WS},
 address={Stanford, CA, USA, March 22nd to 24th, 2021},
