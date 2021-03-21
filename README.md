@@ -6,10 +6,6 @@ as well as a combination of linear dimension reduction using Proper Orthogonal D
 evolution using Radial Basis Function (RBF) interpolation. 
 
 
-## Description
-
-* High-fidelity snapshots data files and trained model files are available at [RDEDrive](https://rdedrivepub.erdc.dren.mil/url/7exgxudgfjgiafnp) (Password: 23bnnyfn)
-
 
 ## Getting Started
 
@@ -25,7 +21,8 @@ evolution using Radial Basis Function (RBF) interpolation.
 
 * NODE scripts, available inside the notebooks directory, can be invoked with various user-specified configuration options to test different NN models 
 * DMD and PODRBF notebooks are also available inside the notebooks directory.
-
+* High-fidelity snapshot data files are available at [HFM data](https://drive.google.com/drive/folders/1uRgkcA36tRZQqdfUDunhVNaqxa1Cceqd?usp=sharing). These should be placed in the <node\_nirom/data/> directory.
+* Some pre-trained ROM model files are available at [NIROM models](https://drive.google.com/drive/folders/19DEWdoS7Fkh-Cwe7Lbq6pdTdE290gYSS?usp=sharing). The DMD and PODRBF trained models should be placed in the <node\_nirom/data/> directory, and the NODE models should be placed inside the corresponding subdirectory of <node\_nirom/best\_models>.
 
 ## Authors
 
