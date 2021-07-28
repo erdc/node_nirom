@@ -28,7 +28,6 @@ elif tf.__version__.split('.')[0] == 2: # in ['2.2.0','2.3.0']:
 
 from tfdiffeq import odeint,odeint_adjoint
 from tfdiffeq.models import ODENet
-# from tfdiffeq.bfgs_optimizer import BFGSOptimizer
 from tfdiffeq.adjoint import odeint as adjoint_odeint
 from tfdiffeq import plot_phase_portrait, plot_vector_field, plot_results
 tf.keras.backend.set_floatx('float64')
@@ -276,7 +275,7 @@ Z_pred_true = project_onto_basis(snap_pred_true, U_r, snap_mean)
 
 true_state_array = np.zeros((times_train.size,npod_total));
 true_pred_state_array = np.zeros((times_predict.size, npod_total));
-#init_state = true_state_array[0,:]
+
 
 ctr=0
 stack = stack_order.split(',')
@@ -304,15 +303,15 @@ if scale_time == True:
 
 
 if scale_states == True:
-    #scale_mm = MinMaxScaler()  ## Scales to [0,1] for every mode
-    #scale_mm = StandardScaler() ## Scales to approx. [-1,1] for every mode
+    #scale_mm = MinMaxScaler()  ## Scales each mode to [0,1] 
+    #scale_mm = StandardScaler() ## Scales each mode to approx. [-1,1] 
     #scale_mm.fit(true_state_array)
     #true_state_array = scale_mm.transform(true_state_array)
 
-    ## Scale entire vector to [-1,1]^d
-    #max_g = true_state_array.max(); min_g = true_state_array.min()
-    ## Scale each element between [-1,1]
-    max_g = np.amax(true_state_array,axis=0); min_g = np.amin(true_state_array,axis=0)
+    #max_g = true_state_array.max();  ## Scale entire vector to [-1,1]^d
+    #min_g = true_state_array.min()
+    max_g = np.amax(true_state_array,axis=0); ## Scale each element between [-1,1]
+    min_g = np.amin(true_state_array,axis=0)
     scaler = lambda x: (2*(x - min_g)/(max_g - min_g) - 1)
     true_state_array = scaler(true_state_array)
 
@@ -340,8 +339,6 @@ elif optimizer == 'RMSprop':
 
 
 ### ------- Define NN and ODE integrator-----------------
-# Define NN and ODE integrator
-
 class NN(tf.keras.Model):
 
     def __init__(self, **kwargs):
@@ -353,7 +350,7 @@ class NN(tf.keras.Model):
                                            kernel_initializer = tf.keras.initializers.glorot_uniform(),
                                            bias_initializer='zeros',
                                            input_shape=(state_len+aug_dims,)),
-                     tf.keras.layers.Dense(state_len+aug_dims)])
+                         tf.keras.layers.Dense(state_len+aug_dims)])
 
         elif N_layers == 2:
 
@@ -364,7 +361,7 @@ class NN(tf.keras.Model):
                                            tf.keras.layers.Dense(N_neurons, activation='linear',
                                            kernel_initializer = tf.keras.initializers.glorot_uniform(),
                                            bias_initializer='zeros'),
-                     tf.keras.layers.Dense(state_len+aug_dims)])
+                         tf.keras.layers.Dense(state_len+aug_dims)])
 
         elif N_layers == 3:
 
@@ -378,7 +375,7 @@ class NN(tf.keras.Model):
                                            tf.keras.layers.Dense(N_neurons, activation='linear',
                                            kernel_initializer = tf.keras.initializers.glorot_uniform(),
                                            bias_initializer='zeros'),
-                     tf.keras.layers.Dense(state_len+aug_dims)])
+                         tf.keras.layers.Dense(state_len+aug_dims)])
 
         elif N_layers == 4:
             self.eqn =  tf.keras.Sequential([tf.keras.layers.Dense(N_neurons, activation=act_f,
@@ -394,7 +391,7 @@ class NN(tf.keras.Model):
                                            tf.keras.layers.Dense(N_neurons, activation='linear',
                                            kernel_initializer = tf.keras.initializers.glorot_uniform(),
                                            bias_initializer='zeros'),
-                     tf.keras.layers.Dense(state_len+aug_dims)])
+                         tf.keras.layers.Dense(state_len+aug_dims)])
 
     @tf.function
     def call(self, t, y):
@@ -600,7 +597,7 @@ if scale_time == True:
 
 if adjoint == True:
     predicted_states = adjoint_odeint(model, tf.expand_dims(init_state, axis=0),
-                                        tf.convert_to_tensor(times_predict), method=solver)
+                                tf.convert_to_tensor(times_predict), method=solver)
     predicted_states = tf.squeeze(predicted_states)
     if augmented == True:
         predicted_states = np.delete(predicted_states,slice(state_len,state_len+aug_dims),axis=1)
@@ -629,7 +626,6 @@ viz = False
 
 if viz:
     comp = 0
-    # true_state_array = np.load(datadir+'NS_Coefficients_pred_true.npz')['true']
 
     # Visualization fluff here
     fig, ax = plt.subplots(nrows=3,ncols=1,figsize=(8,15))

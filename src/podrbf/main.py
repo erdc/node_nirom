@@ -227,7 +227,7 @@ class PODRBFBase(object):
 
         return self._A_train, self._rbf_centers_train, self._rbf_coeff_train
 
-    def predict_time(self, times_online, use_greedy=True, **options):
+    def predict_time(self, times_online, use_greedy=False, **options):
         """
         Evaluate reduced order POD-RBF model
         at queried online time points

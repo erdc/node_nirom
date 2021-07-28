@@ -14,18 +14,22 @@ S. Dutta, P. Rivera-casillas, and M. W. Farthing, “Neural Ordinary Differentia
 ### Dependencies
 
 * Python 3.x
-* Tensorflow 2.x, 1.15.x
-* tfdiffeq
+* Tensorflow TF 2 / 1.15.0 or above. Prefereably TF 2.0+, as the entire tfdiffeq codebase requires Eager Execution. Install either the CPU or the GPU version depending on available resources.
+* tfdiffeq - Installation directions are available at [tfdiffeq](https://github.com/titu1994/tfdiffeq).
 
+A list of all the package requirements along with version information is provided in the [requirements](requirements.txt) file.
 
 ### Executing program
 
-* NODE scripts, available inside the notebooks directory, can be invoked with various user-specified configuration options to test different NN models
+* NODE scripts, available inside the notebooks directory, can be invoked with various user-specified configuration options to test different NN models.
 * DMD and PODRBF notebooks are also available inside the notebooks directory.
-* High-fidelity snapshot data files are available at
+* High-fidelity snapshot data files are available for
+
 Shallow Water models - [Link](https://drive.google.com/drive/folders/1yhudg8RPvwV9SJx9CTqANEnyN55Grzem?usp=sharing),
+
 Navier Stokes model - [Link](https://drive.google.com/drive/folders/1QG4dyoil5QGHjx3d1L3t0S6lsTGS7Vh0?usp=sharing).
-These should be placed in the <node\_nirom/data/> directory.
+
+These data files should be placed in the <node\_nirom/data/> directory.
 * Some pre-trained ROM model files are available at [NIROM models](https://drive.google.com/drive/folders/19DEWdoS7Fkh-Cwe7Lbq6pdTdE290gYSS?usp=sharing). The DMD and PODRBF trained models should be placed in the <node\_nirom/data/> directory, and the NODE models should be placed inside the corresponding subdirectory of <node\_nirom/best\_models>.
 
 ## Authors
